@@ -102,9 +102,9 @@ def genera_candidatos(datos):
                 # Si se diferencian solo en el ultimo elemento generamos un nuevo conjunto a patir de los dos anteriores
                 c3 = copy.copy(c1)
                 c3.append(c2[len(c1) - 1])
-                c3.sort()
                 # Comprobamos si el conjunto generado es frecuente
                 if es_frecuente(datos, c3):
+                    c3.sort()
                     # Si es frecuente lo añadimos a la lista
                     result.append(c3)
             j += 1
@@ -113,29 +113,44 @@ def genera_candidatos(datos):
 
 
 '''
-
+    Funcion que filtra los condidatos que hemos obtenido.
+    Comprobamos si el candidato supera el s_min.
+    Devolvemos la lista de conjuntos frecuentes y el diccionario con
+    los soportes de dichos conjuntos.
 '''
 def filtrar_candidatos(candidatos, datos, s_min):
     N = {}
     result = []
     l_datos = len(datos)
+    # Recorremos la lista de condidatos
     for cand in candidatos:
+        # Obtnemos su soporte
         soporte = get_soporte(cand, datos)
+        # Comprobamos si el soporte ha superado el s_min
         if (soporte / l_datos) >= s_min:
+            # Si lo ha superado lo añadimos a la lista de conjuntos y la diccionarios.
             idf = get_string_representation(cand)
             N[idf] = soporte
             result.append(cand)
     return (result, N)
 
 
+'''
+    Devuelve el soporte (en terminos absolutos) de un conjunto
+'''
 def get_soporte(c1, datos):
     result = 0
+    # Recorremos todas las transacciones
     for x in datos:
         cop = True
+        # Recorremos todos los elementos del conjunto
         for y in c1:
+            # Miramos si el elemento esta en la transaccion
             if y not in x:
+                # Si no esta dejamos de mirar el resto de elementos
                 cop = False
                 break
+        # Miramos si tenemos que sumar una aparicion
         if cop:
             result += 1
     return result
@@ -150,12 +165,25 @@ def get_soporte(c1, datos):
 def es_frecuente(datos, c1):
     k = len(c1) -1
     n = c1[k]
+    '''
+        Sabemos que el conjunto c1 se ha formado a partir de conjuntos
+        dentro de datos y que el unico valor que varia es el ultimo, asi
+        que creamos un conjunto de tamaño k y vamos cambiando elementos
+        por el ultimo. Si todos los subconjuntos existen en datos es que
+        es frecuente, si alguno no existe, no lo es.
+    '''
     for i in range(0, k):
+        # Creamos una copia de tamaño k
         aux = copy.copy(c1[:k])
+        # cambiamos un elemento del conjunto por el ultimo
         aux[i] = n
+        # Ordenamos el conjunto
         aux.sort()
+        # Comprobamos si existe
         if aux not in datos:
+            # Si no existe es que el conjunto no es frecuente
             return False
+    # Si llegamos aqui es que todos los subconjuntos son frecuentes
     return True
 
 
